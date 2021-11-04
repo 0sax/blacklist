@@ -122,7 +122,7 @@ func (c *Client) makeRequest(method, endpoint string, responseTarget interface{}
 	req.Header.Set("Authorization", c.apiKey)
 
 	client := http.Client{
-		Timeout: time.Second * 20,
+		Timeout: time.Second * 60,
 	}
 
 	resp, err := client.Do(req)
