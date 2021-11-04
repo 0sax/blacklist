@@ -47,7 +47,8 @@ func (c *Client) SearchBlacklistFull(bvn string) (blr []BlacklistLoanRecord, err
 		return
 	}
 
-	if a, ok := r.Data.([]interface{}); ok {
+	if _, ok := r.Data.([]interface{}); ok {
+		a := r.Data.([]interface{})
 		for _, b := range a {
 			bm := b.(map[string]interface{})
 
@@ -68,14 +69,11 @@ func (c *Client) SearchBlacklistFull(bvn string) (blr []BlacklistLoanRecord, err
 
 			blr = append(blr, bl)
 		}
+		return
 	}
 
-	//if lr, ok := r.Data.([]BlacklistLoanRecord); ok {
-	//
-	//}
-	//for _, res := range *r.Data {
-	//	blr = append(blr, res)
-	//}
+	err = err2.NewClientErr(nil,
+		"internal error 5", 500)
 
 	return
 
