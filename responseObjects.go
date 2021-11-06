@@ -1,10 +1,9 @@
 package blacklist
 
 type BlacklistBVNResult struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-
-	Data interface{} `json:"data"`
+	Status  string                `json:"status"`
+	Message string                `json:"message"`
+	Data    []BlacklistLoanRecord `json:"data"`
 }
 
 type BlacklistLoanRecord struct {
@@ -23,12 +22,16 @@ type BlacklistLoanRecord struct {
 }
 
 type CRCBVNResult struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    struct {
+		CRC []struct {
+			Status  string   `json:"status"`
+			Message string   `json:"message"`
+			Data    *CRCData `json:"data"`
+		} `json:"crc"`
+	} `json:"data"`
 	//blacklist: null
-	CRC []struct {
-		Status  string   `json:"status"`
-		Message string   `json:"message"`
-		Data    *CRCData `json:"data"`
-	} `json:"crc"`
 }
 
 type CRCData struct {

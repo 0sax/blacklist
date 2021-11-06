@@ -1,14 +1,8 @@
 package blacklist
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/0sax/err2"
-	"io/ioutil"
-	"net/http"
-	"reflect"
-	"time"
 )
 
 type Client struct {
@@ -42,35 +36,40 @@ func (c *Client) SearchBlacklistFull(bvn string) (blr []BlacklistLoanRecord, err
 		return
 	}
 
-	if _, ok := r.Data.(bool); ok {
-		err = err2.NewClientErr(nil, r.Message, 204)
+	if r.Data != nil {
+		blr = r.Data
 		return
 	}
 
-	if _, ok := r.Data.([]interface{}); ok {
-		a := r.Data.([]interface{})
-		for _, b := range a {
-			bm := b.(map[string]interface{})
-
-			bl := BlacklistLoanRecord{
-				CompanyName: bm["company_name"].(string),
-				Name:        bm["name"].(string),
-				Phone:       bm["phone"].(string),
-				Email:       bm["email"].(string),
-				Bvn:         bm["bvn"].(string),
-				Gender:      bm["gender"].(string),
-				LoanAmount:  bm["loan_amount"].(string),
-				AmountPaid:  bm["amount_paid"].(string),
-				Balance:     bm["balance"].(string),
-				DueDate:     bm["due_date"].(string),
-				Location:    bm["location"].(string),
-				Date:        bm["Date"].(string),
-			}
-
-			blr = append(blr, bl)
-		}
-		return
-	}
+	//if _, ok := r.Data.(bool); ok {
+	//	err = err2.NewClientErr(nil, r.Message, 204)
+	//	return
+	//}
+	//
+	//if _, ok := r.Data.([]interface{}); ok {
+	//	a := r.Data.([]interface{})
+	//	for _, b := range a {
+	//		bm := b.(map[string]interface{})
+	//
+	//		bl := BlacklistLoanRecord{
+	//			CompanyName: bm["company_name"].(string),
+	//			Name:        bm["name"].(string),
+	//			Phone:       bm["phone"].(string),
+	//			Email:       bm["email"].(string),
+	//			Bvn:         bm["bvn"].(string),
+	//			Gender:      bm["gender"].(string),
+	//			LoanAmount:  bm["loan_amount"].(string),
+	//			AmountPaid:  bm["amount_paid"].(string),
+	//			Balance:     bm["balance"].(string),
+	//			DueDate:     bm["due_date"].(string),
+	//			Location:    bm["location"].(string),
+	//			Date:        bm["Date"].(string),
+	//		}
+	//
+	//		blr = append(blr, bl)
+	//	}
+	//	return
+	//}
 
 	err = err2.NewClientErr(nil,
 		"internal error 5", 500)
@@ -96,66 +95,19 @@ func (c *Client) SearchCRCFull(bvn string) (cd *CRCData, err error) {
 
 	fmt.Printf("result %+v", r)
 
-	if a := r.CRC[0]; a.Status == "error" {
+	if r.Status == "error" {
 		fmt.Println("error here 2") //debug delete
-		err = err2.NewClientErr(nil, a.Message, 400)
+		err = err2.NewClientErr(nil, r.Message, 400)
 		return
 	}
 
-	cd = r.CRC[0].Data
-
-	return
-
-}
-
-func (c *Client) makeRequest(method, endpoint string, responseTarget interface{}) error {
-	if reflect.TypeOf(responseTarget).Kind() != reflect.Ptr {
-		return errors.New("blacklist sdk: responseTarget must be a pointer to a struct for JSON unmarshalling")
+	if a := r.Data.CRC[0]; a.Status == "error" {
+		fmt.Println("error here 2") //debug delete
+		err = err2.NewClientErr(nil, a.Message, 400)
+		return
+	} else {
+		cd = a.Data
+		return
 	}
 
-	req, err := http.NewRequest(method, c.url+endpoint, nil)
-	if err != nil {
-		fmt.Println("error hereA") //debug delete
-		return err
-	}
-
-	req.Header.Set("Authorization", c.apiKey)
-
-	client := http.Client{
-		Timeout: time.Second * 60,
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println("error hereC") //debug delete
-		fmt.Println(err)
-		return err
-	}
-	defer resp.Body.Close()
-
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("error hereD") //debug delete
-		return err
-	}
-
-	fmt.Println("\nHeres the body \n %v\n", string(b)) //debug delete
-
-	if resp.StatusCode == 200 {
-		err = json.Unmarshal(b, responseTarget)
-		if err != nil {
-			fmt.Println("error hereE") //debug delete
-			fmt.Println(err)
-			fmt.Println("target sha", responseTarget)
-			return err
-		}
-		return nil
-	}
-	//
-	//err = Error{
-	//	Code:     resp.StatusCode,
-	//	Body:     string(b),
-	//	Endpoint: req.URL.String(),
-	//}
-	return err
 }
