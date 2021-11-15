@@ -1,6 +1,7 @@
 package blacklist
 
 import (
+	"errors"
 	"fmt"
 	"github.com/0sax/err2"
 )
@@ -32,7 +33,7 @@ func (c *Client) SearchBlacklistFull(bvn string) (blr []BlacklistLoanRecord, err
 
 	//client errors
 	if r.Status == "error" {
-		err = err2.NewClientErr(nil, r.Message, 400)
+		err = err2.NewClientErr(errors.New(r.Message), r.Message, 400)
 		return
 	}
 
@@ -71,8 +72,7 @@ func (c *Client) SearchBlacklistFull(bvn string) (blr []BlacklistLoanRecord, err
 	//	return
 	//}
 
-	err = err2.NewClientErr(nil,
-		"internal error 5", 500)
+	err = errors.New("internal error 5")
 
 	return
 
@@ -84,7 +84,7 @@ func (c *Client) SearchCRCFull(bvn string) (cd *CRCData, err error) {
 
 	err = c.makeRequest(
 		"GET",
-		fmt.Sprintf("bvn-blacklist-crc-search/%v", bvn),
+		fmt.Sprintf("crc-bvn-search/%v", bvn),
 		&r)
 	if err != nil {
 		fmt.Println("error here 1") //debug delete
