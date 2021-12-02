@@ -71,17 +71,27 @@ func TestClient_SearchCRCFull(t *testing.T) {
 			"valid BVN",
 			os.Getenv("VALID_BVN_NUMBER"),
 			false,
+		}, // TODO: Add test cases.
+		{cc,
+			"Nohit",
+			os.Getenv("NOHIT"),
+			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cd, err := tt.cl.SearchCRCFull(tt.bvn)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("SearchBlacklistFull() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("searchCRCFull() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if cd != nil {
 				t.Logf("crc result: %+v\n", cd)
+			}
+			if tt.name == "Nohit" {
+				if !cd.NoHit {
+					t.Errorf("searchCRCFull() cd.Nohit = %v, want true", cd.NoHit)
+				}
 			}
 			//if !reflect.DeepEqual(gotBlr, tt.wantBlr) {
 			//	t.Errorf("SearchBlacklistFull() gotBlr = %v, want %v", gotBlr, tt.wantBlr)

@@ -1,6 +1,7 @@
 package blacklist
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/0sax/err2"
@@ -100,14 +101,21 @@ func (c *Client) SearchCRCFull(bvn string) (cd *CRCData, err error) {
 		err = err2.NewClientErr(nil, r.Message, 400)
 		return
 	}
+	a := r.Data.CRC[0]
 
-	if a := r.Data.CRC[0]; a.Status == "error" {
+	if a.Status == "error" {
 		fmt.Println("error here 2") //debug delete
 		err = err2.NewClientErr(nil, a.Message, 400)
 		return
-	} else {
-		cd = a.Data
-		return
 	}
+
+	switch a.Message {
+	case CRCNoHit:
+		cd = &CRCData{NoHit: true}
+	case CRCUserRecordFound:
+		err = json.Unmarshal([]byte(a.Data), &cd)
+	}
+
+	return
 
 }

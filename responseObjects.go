@@ -1,5 +1,12 @@
 package blacklist
 
+import "encoding/json"
+
+const (
+	CRCUserRecordFound = "User record found"
+	CRCNoHit           = "No data hit found"
+)
+
 type BlacklistBVNResult struct {
 	Status  string                `json:"status"`
 	Message string                `json:"message"`
@@ -26,15 +33,16 @@ type CRCBVNResult struct {
 	Message string `json:"message"`
 	Data    struct {
 		CRC []struct {
-			Status  string   `json:"status"`
-			Message string   `json:"message"`
-			Data    *CRCData `json:"data"`
+			Status  string          `json:"status"`
+			Message string          `json:"message"`
+			Data    json.RawMessage `json:"data"`
 		} `json:"crc"`
 	} `json:"data"`
 	//blacklist: null
 }
 
 type CRCData struct {
+	NoHit               bool
 	MFBSummary          CRCSummary `json:"MFCREDIT_NANO_SUMMARY"`
 	MortgageSummary     CRCSummary `json:"MGCREDIT_NANO_SUMMARY"`
 	CreditNanoSummary   CRCSummary `json:"CREDIT_NANO_SUMMARY"`
