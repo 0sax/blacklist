@@ -12,10 +12,10 @@ type Client struct {
 	apiKey string
 }
 
-func NewBlackListClient(baseUrl, apiKey string) *Client {
+func NewBlackListClient(apiKey string) *Client {
 
 	return &Client{
-		url:    baseUrl,
+		url:    "https://blacklistng.com/api/",
 		apiKey: apiKey,
 	}
 }
